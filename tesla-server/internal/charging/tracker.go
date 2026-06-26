@@ -219,7 +219,7 @@ type MonthlyChargingItem struct {
 	TotalKwh        float64  `json:"total_kwh"`
 	MaxPower        float64  `json:"max_power"`
 	AvgKwhPerCharge float64  `json:"avg_kwh_per_charge"`
-	TotalCost       *float64 `json:"total_cost"` // 总费用(元)，可能为null
+	TotalCost       *float64 `json:"total_cost"` // 总费用(円)，可能为null
 }
 
 func GetMonthlyChargingList(vin string) ([]MonthlyChargingItem, error) {
