@@ -44,9 +44,9 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 | # | 类别 | 文件 | 中国值 → 日本值 | 状态 |
 |---|------|------|------|------|
 | 14 | 虚拟钥匙配对 URL | `tesla-server/internal/tesla/oauth.go:1253` | 改为 `cfg.Tesla.PairingBase`（区域化，jp→`tesla.com`） | ✅ |
-| 15 | VIN 前缀/电池容量 | `tesla-server/internal/charging/tracker.go:118-128`、`internal/trip/tracker.go` | `LRW`(中国国行) 映射 → 加入日本进口车 VIN 前缀（待查实际值，多为 5YJ/7SA/XP7 进口） | ☐ |
+| 15 | VIN 前缀/电池容量 | `internal/battery/battery.go`（新）、charging/trip tracker | 抽出共享包消除重复；注释改为按产地/车型（区域中立，前缀对日本同样适用：LRW=上海产含出口日本车型）；修正 `<4` 边界为 `<3` | ✅ |
 | 16 | Fleet 注释/endpoints | `tesla-server/internal/fleet/client.go` | 移除「中国区不支持 closures_state」等假设，按 APAC 实测调整 | ☐ |
-| 17 | 时区 | `tesla-server/cmd/batch_analyze/main.go` | `Asia/Shanghai` → `Asia/Tokyo` | ☐ |
+| 17 | 时区 | `tesla-server/cmd/batch_analyze/main.go` | 默认 `Asia/Tokyo`，可用 `TZ` 环境变量覆盖 | ✅ |
 
 ### P2 — 本地化（语言 / 货币 / 单位）
 

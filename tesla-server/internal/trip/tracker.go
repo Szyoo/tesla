@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"tesla-server/internal/ai"
+	"tesla-server/internal/battery"
 	"tesla-server/internal/database"
 	"tesla-server/internal/fleet"
 	"tesla-server/internal/geo"
@@ -349,25 +350,8 @@ func estimateEnergyUsed(vin string, startSOC, endSOC int) float64 {
 		return 0
 	}
 	socDelta := float64(startSOC - endSOC)
-	batteryCapacity := getBatteryCapacity(vin)
+	batteryCapacity := battery.CapacityByVIN(vin)
 	return batteryCapacity * socDelta / 100.0
-}
-
-func getBatteryCapacity(vin string) float64 {
-	if len(vin) < 4 {
-		return 60.0
-	}
-	capacities := map[string]float64{
-		"LRW": 60.0,
-		"5YJ": 75.0,
-		"7SA": 78.0,
-		"XP7": 100.0,
-	}
-	prefix := vin[0:3]
-	if cap, ok := capacities[prefix]; ok {
-		return cap
-	}
-	return 60.0
 }
 
 func GetTripLogs(vin string, limit int, startDate, endDate time.Time) ([]models.TripLog, error) {
