@@ -66,7 +66,11 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 - **地图服务 = Google Maps**。理由：日本特斯拉车机本身即用 Google 地图（特斯拉全球车机除中国外均用 Google 地图数据），符合车机生态与日本用户习惯。影响 #8–13。
 - **双区兼容 = 用 env 开关切 CN/JP**。保留中国代码路径，端点/地图/坐标/货币由配置控制。新增配置项 `REGION=jp|cn`（或等价开关），坐标偏移、地图服务、Fleet 端点据此分流。代码改动最小、同步 upstream 冲突最小。影响全局架构。
 - **语言 = 接 vue-i18n 做日/英多语言**。文案抽成语言包（`ja` / `en`），默认日文。影响 #18–22, #25。
-- **AI 模型**：仍待定（Claude / GPT / 其他国际 LLM）。影响 #24–25。
+- **AI 模型 = Provider 可切换（已实现）**。`AI_PROVIDER=openai-compat`(默认) / `anthropic`(Claude 官方 SDK)。见 AI-PROVIDERS.md。
+- **发布平台 = iOS App**（2026-06-26 确认）。UniApp 编译为 iOS App。影响：
+  - 地图（#8-13）：用 Google Maps iOS 原生 SDK 或 Apple MapKit，不受小程序限制；需 UniApp 原生插件（Swift）。
+  - 苹果端侧 AI：iOS 上可行，可做 Swift 插件调 FoundationModels(iOS 26+)，见 AI-PROVIDERS.md 第三节。
+  - 前端语言/货币显示走 vue-i18n。
 
 ## 由决策衍生的架构约定
 
