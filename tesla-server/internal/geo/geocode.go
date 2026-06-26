@@ -170,6 +170,16 @@ func outOfChina(lng, lat float64) bool {
 	return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271
 }
 
+// LocalizeCoords 按部署区域把 Tesla 返回的原始 WGS-84 坐标转换为本地地图所需坐标系。
+// 仅中国区(cn)需要 GCJ-02 偏移（法规要求）；日本及其他区域使用标准 WGS-84，原样返回。
+// 这样可避免对西日本（经度 < 137.83，落在旧 outOfChina 矩形内）误施加中国坐标偏移。
+func LocalizeCoords(lat, lng float64) (outLat, outLng float64) {
+	if config.Load().Region == "cn" {
+		return WGS84ToGCJ02(lat, lng)
+	}
+	return lat, lng
+}
+
 func WGS84ToGCJ02(wgsLat, wgsLng float64) (gcjLat, gcjLng float64) {
 	if outOfChina(wgsLng, wgsLat) {
 		return wgsLat, wgsLng
