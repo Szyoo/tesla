@@ -1250,7 +1250,7 @@ func GetVirtualKeyPairingURL(c *gin.Context) {
 		return
 	}
 
-	pairingURL := fmt.Sprintf("https://tesla.cn/_ak/%s", domain)
+	pairingURL := fmt.Sprintf("%s/_ak/%s", cfg.Tesla.PairingBase, domain)
 	if vin != "" {
 		pairingURL += fmt.Sprintf("?vin=%s", vin)
 	}

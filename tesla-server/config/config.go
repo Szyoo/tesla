@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+	Region    string // 部署区域：cn / jp / na / eu（见 REGION 环境变量）
 	Server    ServerConfig
 	Database  DatabaseConfig
 	Redis     RedisConfig
@@ -15,6 +16,38 @@ type Config struct {
 	Map       MapConfig
 	AI        AIConfig
 	Telemetry TelemetryConfig
+}
+
+// regionEndpoints 保存各区域的 Tesla 端点默认值。
+// 注意：Tesla Fleet API 只有 3 个区域 —— 北美/亚太(na)、欧洲(eu)、中国(cn)。
+// 日本属于亚太(APAC)，走北美区 na 端点，不存在 *.tesla.jp 域名。
+type regionEndpoints struct {
+	AuthBase    string // OAuth 授权/令牌主机（cn 用 auth.tesla.cn，其余用 auth.tesla.com）
+	FleetAPIURL string // Fleet API 基址，同时用作 audience
+	PairingBase string // 虚拟钥匙配对页主机（tesla.cn 或 tesla.com）
+}
+
+var teslaRegions = map[string]regionEndpoints{
+	"cn": {
+		AuthBase:    "https://auth.tesla.cn",
+		FleetAPIURL: "https://fleet-api.prd.cn.vn.cloud.tesla.cn",
+		PairingBase: "https://tesla.cn",
+	},
+	"jp": { // 日本：APAC，复用 na 端点
+		AuthBase:    "https://auth.tesla.com",
+		FleetAPIURL: "https://fleet-api.prd.na.vn.cloud.tesla.com",
+		PairingBase: "https://tesla.com",
+	},
+	"na": {
+		AuthBase:    "https://auth.tesla.com",
+		FleetAPIURL: "https://fleet-api.prd.na.vn.cloud.tesla.com",
+		PairingBase: "https://tesla.com",
+	},
+	"eu": {
+		AuthBase:    "https://auth.tesla.com",
+		FleetAPIURL: "https://fleet-api.prd.eu.vn.cloud.tesla.com",
+		PairingBase: "https://tesla.com",
+	},
 }
 
 type TelemetryConfig struct {
@@ -74,6 +107,7 @@ type TeslaConfig struct {
 	VCPURL              string
 	FrontendCallbackURL string
 	PartnerDomain       string
+	PairingBase         string // 虚拟钥匙配对页主机，按区域而定（如 https://tesla.com）
 }
 
 type JWTConfig struct {
@@ -87,10 +121,19 @@ type MapConfig struct {
 }
 
 func Load() *Config {
-	teslaTokenURL := getEnv("TESLA_TOKEN_URL", "https://auth.tesla.cn/oauth2/v3/token")
-	teslaAuthURL := getEnv("TESLA_AUTH_URL", "https://auth.tesla.cn/oauth2/v3/authorize")
-	teslaFleetAPIURL := getEnv("TESLA_FLEET_API_URL", "https://fleet-api.prd.cn.vn.cloud.tesla.cn")
-	teslaAudience := getEnv("TESLA_AUDIENCE", "https://fleet-api.prd.cn.vn.cloud.tesla.cn")
+	// REGION 决定 Tesla 端点的默认值（cn/jp/na/eu）。默认 jp（本 fork 为日本版）。
+	// 显式设置的 TESLA_*_URL 环境变量始终优先于区域默认值，便于自定义/代理场景。
+	region := strings.ToLower(getEnv("REGION", "jp"))
+	ep, ok := teslaRegions[region]
+	if !ok {
+		ep = teslaRegions["jp"]
+		region = "jp"
+	}
+
+	teslaTokenURL := getEnv("TESLA_TOKEN_URL", ep.AuthBase+"/oauth2/v3/token")
+	teslaAuthURL := getEnv("TESLA_AUTH_URL", ep.AuthBase+"/oauth2/v3/authorize")
+	teslaFleetAPIURL := getEnv("TESLA_FLEET_API_URL", ep.FleetAPIURL)
+	teslaAudience := getEnv("TESLA_AUDIENCE", ep.FleetAPIURL)
 	teslaRedirectURI := getEnv("TESLA_REDIRECT_URI", "http://localhost:8080/api/tesla/callback")
 
 	teslaTokenURL = ensureHTTPS(teslaTokenURL)
@@ -100,6 +143,7 @@ func Load() *Config {
 	teslaRedirectURI = ensureHTTPS(teslaRedirectURI)
 
 	return &Config{
+		Region: region,
 		Server: ServerConfig{
 			Port: getEnv("SERVER_PORT", "8080"),
 			Mode: getEnv("GIN_MODE", "release"),
@@ -128,6 +172,7 @@ func Load() *Config {
 			VCPURL:              getEnv("TESLA_VCP_URL", ""),
 			FrontendCallbackURL: getEnv("TESLA_FRONTEND_CALLBACK_URL", ""),
 			PartnerDomain:       getEnv("TESLA_PARTNER_DOMAIN", ""),
+			PairingBase:         ep.PairingBase,
 		},
 		JWT: JWTConfig{
 			Secret:           getEnv("JWT_SECRET", "your-secret-key"),
@@ -164,7 +209,13 @@ func Load() *Config {
 
 func ensureHTTPS(url string) string {
 	if len(url) > 7 && url[:7] == "http://" {
-		return "https://" + url[7:]
+		// 本地调试地址豁免：Tesla 允许 localhost 使用 http，
+		// 强制转 https 会导致 redirect_uri 与门户登记值不符。
+		host := url[7:]
+		if strings.HasPrefix(host, "localhost") || strings.HasPrefix(host, "127.0.0.1") {
+			return url
+		}
+		return "https://" + host
 	}
 	return url
 }
