@@ -905,7 +905,7 @@ func RefreshToken(refreshToken string) (*TokenResponse, error) {
 		SetRedirectPolicy(resty.FlexibleRedirectPolicy(0)).
 		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36").
 		SetHeader("Accept", "application/json").
-		SetHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+		SetHeader("Accept-Language", "ja-JP,ja;q=0.9,en;q=0.8")
 
 	log.Printf("[RefreshToken] TokenURL: %s", cfg.Tesla.TokenURL)
 
@@ -1128,7 +1128,7 @@ func newTeslaClient() *resty.Request {
 		R().
 		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36").
 		SetHeader("Accept", "application/json").
-		SetHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+		SetHeader("Accept-Language", "ja-JP,ja;q=0.9,en;q=0.8")
 }
 
 func getPartnerToken() (string, error) {

@@ -174,5 +174,8 @@ func processMonthlyCharging(v models.TeslaVehicle) {
 }
 
 func init() {
-	os.Setenv("TZ", "Asia/Shanghai")
+	// 时区默认日本（可用 TZ 环境变量覆盖，如中国部署设 TZ=Asia/Shanghai）
+	if os.Getenv("TZ") == "" {
+		os.Setenv("TZ", "Asia/Tokyo")
+	}
 }

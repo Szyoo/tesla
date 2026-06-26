@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"tesla-server/internal/ai"
+	"tesla-server/internal/battery"
 	"tesla-server/internal/database"
 	"tesla-server/internal/fleet"
 	"tesla-server/internal/geo"
@@ -135,25 +136,8 @@ func endCharging(vin string, data *fleet.SimpleVehicleData) {
 }
 
 func estimateChargeKwh(socAdded int, vin string) float64 {
-	batteryCapacity := getBatteryCapacity(vin)
+	batteryCapacity := battery.CapacityByVIN(vin)
 	return batteryCapacity * float64(socAdded) / 100.0
-}
-
-func getBatteryCapacity(vin string) float64 {
-	if len(vin) < 4 {
-		return 60.0
-	}
-	capacities := map[string]float64{
-		"LRW": 60.0,
-		"5YJ": 75.0,
-		"7SA": 78.0,
-		"XP7": 100.0,
-	}
-	prefix := vin[0:3]
-	if cap, ok := capacities[prefix]; ok {
-		return cap
-	}
-	return 60.0
 }
 
 func GetChargingLogs(vin string, limit int, startDate, endDate time.Time) ([]models.ChargingLog, error) {
@@ -235,7 +219,7 @@ type MonthlyChargingItem struct {
 	TotalKwh        float64  `json:"total_kwh"`
 	MaxPower        float64  `json:"max_power"`
 	AvgKwhPerCharge float64  `json:"avg_kwh_per_charge"`
-	TotalCost       *float64 `json:"total_cost"` // 总费用(元)，可能为null
+	TotalCost       *float64 `json:"total_cost"` // 总费用(円)，可能为null
 }
 
 func GetMonthlyChargingList(vin string) ([]MonthlyChargingItem, error) {
