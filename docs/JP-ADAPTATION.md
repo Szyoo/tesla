@@ -58,7 +58,7 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 | 21 | 页面标题 i18n | `tesla-app/pages.json`（多处 navigationBarTitleText） | 中文 → 日文（或接入 vue-i18n，项目已装 `vue-i18n`） | ☐ |
 | 22 | 页面内中文文案 | 各 `pages/*.vue` | 中文 → 日文 | ☐ |
 | 23 | Accept-Language | `tesla-server/internal/tesla/oauth.go:908` | `zh-CN,zh...` → `ja-JP,ja;q=0.9,en;q=0.8` | ☐ |
-| 24 | AI 模型 | `tesla-server/config/config.go:143`、`.env.example:43-45` | Zhipu `glm-4-flash` / `open.bigmodel.cn` → 国际 LLM（Claude/GPT） | ☐ |
+| 24 | AI 模型 | `internal/ai/`（client/provider_openai/provider_anthropic）、config、.env.example | Provider 可切换：`AI_PROVIDER=openai-compat`(默认) / `anthropic`(Claude 官方 SDK)。端侧 AI 预留未实现。 | ✅ |
 | 25 | AI 报告输出语言 | `tesla-server/internal/ai/handler.go` | 中文 key/单位 → 日文 | ☐ |
 
 ## 已确认的决策（2026-06-26）
