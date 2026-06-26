@@ -14,6 +14,13 @@
 ## 进展日志
 
 ### 2026-06-26（feat/jp-localization 集群分支）
+- **AI Provider 可切换**（JP-ADAPTATION #24，设计见 docs/AI-PROVIDERS.md）：
+  - 重构 `internal/ai/client.go` 为 `Provider` 接口 + `Chat()` 按 `AI_PROVIDER` 分发；`Chat()` 签名不变，handler 4 处调用零改动。
+  - `provider_openai.go`：OpenAI 兼容实现（重构自原逻辑，覆盖智谱/OpenAI/DeepSeek 等）。
+  - `provider_anthropic.go`：Claude 官方 anthropic-sdk-go v1.52.0（`client.Messages.New`），响应映射进通用 ChatResponse。
+  - config 新增 `AI_PROVIDER`/`ANTHROPIC_API_KEY`/`ANTHROPIC_MODEL`（默认 openai-compat，模型 claude-haiku-4-5）。
+  - 苹果端侧 AI（仅 iOS）已做架构设计、预留路径，**未实现**，等发布 iOS App 再做。
+  - `go build` + `go vet` + `go mod tidy` 通过。
 - **货币单位后端注释**（JP-ADAPTATION #19）：9 处「元」→「円」（models/tesla.go、charging/trip tracker、routes.go），均为注释/字段说明，无逻辑改动。go build 通过。
 - **VIN 电池容量映射**（JP-ADAPTATION #15）：
   - 新增 `internal/battery/battery.go`，把原先在 charging/trip 两包**完全重复**的 `getBatteryCapacity` 合并为 `battery.CapacityByVIN`。

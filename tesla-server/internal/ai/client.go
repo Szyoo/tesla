@@ -1,13 +1,8 @@
 package ai
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"tesla-server/config"
-	"time"
 )
 
 type ChatMessage struct {
@@ -50,61 +45,20 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("AI API error (status %d): %s", e.StatusCode, e.Message)
 }
 
+// Provider 抽象云端 AI 提供方，便于在 OpenAI 兼容服务与 Claude 之间切换。
+// 实现需返回填充好 Choices[0].Message.Content 与 Usage 的 ChatResponse，
+// 以保证上层 handler 的契约不变。
+type Provider interface {
+	Chat(systemPrompt, userPrompt string) (*ChatResponse, error)
+}
+
+// Chat 按 AI_PROVIDER 选择提供方并转发。保持原有函数签名，handler 调用零改动。
 func Chat(systemPrompt, userPrompt string) (*ChatResponse, error) {
 	cfg := config.Load()
-
-	reqBody := ChatRequest{
-		Model: cfg.AI.Model,
-		Messages: []ChatMessage{
-			{Role: "system", Content: systemPrompt},
-			{Role: "user", Content: userPrompt},
-		},
-		Temperature: 0.7,
-		MaxTokens:   4096,
+	switch cfg.AI.Provider {
+	case "anthropic":
+		return (&anthropicProvider{cfg: cfg}).Chat(systemPrompt, userPrompt)
+	default: // openai-compat
+		return (&openAICompatProvider{cfg: cfg}).Chat(systemPrompt, userPrompt)
 	}
-
-	jsonData, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	url := cfg.AI.BaseURL + "/chat/completions"
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+cfg.AI.APIKey)
-
-	client := &http.Client{Timeout: 120 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		var errResp map[string]interface{}
-		json.Unmarshal(body, &errResp)
-		errMsg := string(body)
-		if e, ok := errResp["error"].(map[string]interface{}); ok {
-			if msg, ok := e["message"].(string); ok {
-				errMsg = msg
-			}
-		}
-		return nil, &APIError{StatusCode: resp.StatusCode, Message: errMsg}
-	}
-
-	var chatResp ChatResponse
-	if err := json.Unmarshal(body, &chatResp); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
-	}
-
-	return &chatResp, nil
 }
