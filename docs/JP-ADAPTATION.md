@@ -30,8 +30,8 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 | 3 | Fleet API URL | `tesla-server/config/config.go` | jp→`fleet-api.prd.na.vn.cloud.tesla.com` | ✅ |
 | 4 | Audience | `tesla-server/config/config.go` | 同 Fleet API，区域化 | ✅ |
 | 5 | .env 示例 + 注释 | `tesla-server/.env.example` | 新增 REGION 说明，回调改 localhost，端点覆盖说明 | ✅ |
-| 6 | 坐标系：停用 GCJ-02 偏移 | `tesla-server/internal/telemetry/receiver.go`、`internal/fleet/client.go` | 移除 `geo.WGS84ToGCJ02()` 调用，日本直接用 WGS-84 | ☐ |
-| 7 | 坐标转换函数 | `tesla-server/internal/geo/geocode.go:169-186` | 保留代码但不调用（或加开关），日本无需偏移 | ☐ |
+| 6 | 坐标系：停用 GCJ-02 偏移 | `telemetry/receiver.go`、`fleet/client.go` | 改调 `geo.LocalizeCoords`，jp 区返回原始 WGS-84 | ✅ |
+| 7 | 坐标转换函数 | `tesla-server/internal/geo/geocode.go` | 新增 `LocalizeCoords` 区域开关；`WGS84ToGCJ02` 保留供 cn | ✅ |
 | 8 | 地图反向地理编码 | `tesla-server/internal/geo/geocode.go:51` | 腾讯 `apis.map.qq.com/.../geocoder` → Google/其他 | ☐ |
 | 9 | 地图距离查询 | `tesla-server/internal/geo/geocode.go:111` | 腾讯 `apis.map.qq.com/.../distance` → Google/其他 | ☐ |
 | 10 | 前端地图 Key | `tesla-app/.env.example:3-5`、`tesla-server/.env.example:40` | `VITE_TENCENT_MAP_KEY` → `VITE_GOOGLE_MAPS_KEY`（或所选服务） | ☐ |

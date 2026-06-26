@@ -1348,7 +1348,7 @@ func GetVehicleState(accessToken, vehicleTag string) (*SimpleVehicleData, error)
 	// speed 需要转换：Tesla API 返回的是 mph（英里/小时），需要转换为 km/h（公里/小时）
 	speed := milesToKm(float64(data.Response.DriveState.Speed))
 
-	gcjLat, gcjLng := geo.WGS84ToGCJ02(data.Response.DriveState.Latitude, data.Response.DriveState.Longitude)
+	localLat, localLng := geo.LocalizeCoords(data.Response.DriveState.Latitude, data.Response.DriveState.Longitude)
 
 	return &SimpleVehicleData{
 		ID:        1,
@@ -1375,8 +1375,8 @@ func GetVehicleState(accessToken, vehicleTag string) (*SimpleVehicleData, error)
 		Speed:    speed,
 		Power:    float64(data.Response.DriveState.Power),
 		Heading:  data.Response.DriveState.Heading,
-		Latitude: gcjLat,
-		Longitude: gcjLng,
+		Latitude: localLat,
+		Longitude: localLng,
 		Locked:      data.Response.VehicleState.Locked,
 		SentryMode:  data.Response.VehicleState.SentryMode,
 		MirrorFolded:   data.Response.VehicleState.MirrorFolded,

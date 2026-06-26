@@ -417,8 +417,8 @@ func handleJSONTelemetry(vin string, body []byte) {
 			longitude = lng
 			hasRealtime = true
 		}
-		// Convert WGS-84 to GCJ-02 for China maps
-		lat, lng := geo.WGS84ToGCJ02(latitude, longitude)
+		// 按区域本地化坐标（中国转 GCJ-02，其余区域保持 WGS-84）
+		lat, lng := geo.LocalizeCoords(latitude, longitude)
 		realtimeFields["latitude"] = lat
 		realtimeFields["longitude"] = lng
 	}
@@ -1260,8 +1260,8 @@ func processProtobufTelemetry(vin string, payload *protos.Payload) {
 		case protos.Field_Location:
 			loc := datum.Value.GetLocationValue()
 			if loc != nil {
-				// Convert WGS-84 to GCJ-02 for China maps
-				lat, lng := geo.WGS84ToGCJ02(loc.GetLatitude(), loc.GetLongitude())
+				// 按区域本地化坐标（中国转 GCJ-02，其余区域保持 WGS-84）
+				lat, lng := geo.LocalizeCoords(loc.GetLatitude(), loc.GetLongitude())
 				realtimeFields["latitude"] = lat
 				realtimeFields["longitude"] = lng
 				hasRealtime = true

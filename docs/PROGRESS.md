@@ -13,6 +13,13 @@
 
 ## 进展日志
 
+### 2026-06-26（feat/coords-wgs84 分支）
+- **P0 坐标系区域化**（JP-ADAPTATION #6, #7）：
+  - `internal/geo/geocode.go`：新增 `LocalizeCoords(lat,lng)`——仅 `REGION=cn` 时做 GCJ-02 偏移，日本及其他区域返回原始 WGS-84。`WGS84ToGCJ02` 原函数保留供 cn 用。
+  - 3 个调用点（`telemetry/receiver.go` ×2、`fleet/client.go` ×1）改为调 `LocalizeCoords`。
+  - 修复真实隐患：旧 `outOfChina` 矩形（经度 72~137.83）会把**西日本**（九州/冲绳/四国等，经度 < 137.83）误判为中国并施加坐标偏移；区域开关彻底规避。
+  - 已 `go build ./...` 编译通过。
+
 ### 2026-06-26（feat/region-switch 分支）
 - **P0 后端 region 开关 + Tesla 端点区域化**（JP-ADAPTATION #1-5, #14）：
   - `config.go`：新增 `REGION` 环境变量（jp/na/eu/cn，默认 jp）与 `teslaRegions` 端点表，按区域提供 OAuth/Fleet/audience/配对页默认端点；显式 `TESLA_*_URL` 仍优先覆盖。`Config` 加 `Region` 字段，`TeslaConfig` 加 `PairingBase`。

@@ -22,21 +22,22 @@
 |------|------|------|
 | `master` | **原作者代码的纯净镜像** | 只用来同步 `upstream/master`，**禁止**在上面直接改 |
 | `main` | upstream 的占位分支（几乎只有 LICENSE） | 忽略，不用 |
-| `dev` | **我们的主集成分支** | 接收功能分支的合并；不直接在 dev 上写功能代码（文档类小改动可例外） |
-| `feat/*`、`fix/*` | **功能/修复分支** | 每个新功能/改动从 `dev` 切出，命名如 `feat/region-switch`、`fix/xxx` |
+| `dev` | **我们的主集成分支** | 接收功能集群分支的合并；不直接在 dev 上写功能代码（文档类小改动可例外） |
+| `feat/*`、`fix/*` | **功能集群分支** | 一条分支对应一个**较大的功能集群**（如整体「日本版适配」），命名如 `feat/jp-localization` |
 
 ### 功能开发工作流（强制）
-所有新功能/改动遵循「功能分支」模式：
+分支的粒度是**一个较大的功能集群**，不是每个小改动都开分支。
 ```bash
 git checkout dev
-git checkout -b feat/<功能名>      # 从 dev 切出功能分支
-# ... 开发、提交（commit 前先问用户，见第 2 节）...
+git checkout -b feat/<集群名>      # 从 dev 切出集群分支（如 feat/jp-localization）
+# ... 在该分支上累积多个相关小改动，多次提交（commit 前先问用户，见第 2 节）...
 git checkout dev
-git merge feat/<功能名>            # 完成后合并回 dev
-git branch -d feat/<功能名>        # 可选：删掉已合并的功能分支
+git merge --no-ff feat/<集群名>    # 整个集群完成后再合并回 dev
+git branch -d feat/<集群名>        # 合并后删掉集群分支
 ```
-- 一个功能/逻辑单元一条分支，保持聚焦。
-- 合并前确认功能分支已更新 `docs/PROGRESS.md`。
+- **粒度**：一个集群=一组相关功能（如「日本版适配」含端点/坐标/地图/本地化等多项）。集群内的每个小项是一次 commit，不是一条新分支。
+- **不要**为单个小改动开分支并立即合并——开发量太碎。
+- 合并前确认集群分支已更新 `docs/PROGRESS.md`。
 
 remote 约定：
 - `origin` = `Szyoo/tesla`（你的 fork，**可以 push**）
