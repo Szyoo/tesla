@@ -3,8 +3,17 @@
 > **AI 每次有实质性进展都要更新本文件**（见 [AGENTS.md](../AGENTS.md) 第 2 节）。
 > 倒序排列：最新的在最上面。
 
+## 架构决策（2026-06-26）：闭源 SwiftUI App + 复用 AGPL 后端
+
+- 发布平台 = **iOS App**。前端用**新建的原生 SwiftUI App（闭源）**替代 UniApp，调后端 API。
+- 后端 = **继续复用现有 Go 项目（AGPL）+ 日本化**，不重写。理由：VCP/遥测/状态机是作者踩坑沉淀，重写=几个月重复劳动 + 净室法律风险。
+- **闭源诉求如何满足**：用户的私有业务/UI 逻辑放在 SwiftUI App（独立程序，不受 AGPL 约束）；如后端也有私有逻辑，抽成独立闭源服务经 API 调用。AGPL 只约束「被修改的那个程序」本身，不传染独立的 API 客户端。
+- 后端日本化（feat/jp-localization 集群）已完成所有不依赖前端的项；UniApp 前端的 i18n/地图（#18-22, #8-13）**作废**，由 SwiftUI App 重做。
+
 ## 当前状态
 
+- **后端日本化集群（feat/jp-localization）完成并合并回 dev**：端点区域化、坐标 WGS-84、VIN 电池容量、时区、货币注释、AI Provider 可切换、Accept-Language/AI 报告语言。均编译验证通过。
+- 下一阶段：新建闭源 **SwiftUI iOS App** 作为前端。
 - 分支模型已建立：`master` 为上游纯净镜像，`dev` 为开发分支。
 - **项目目标：从中国版适配为日本版**（原项目为中国区特斯拉）。
 - 已完成中国特定耦合点全量调研，改造清单见 [JP-ADAPTATION.md](JP-ADAPTATION.md)。
