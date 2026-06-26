@@ -13,8 +13,17 @@
 
 ## 进展日志
 
-### 2026-06-26（feat/coords-wgs84 分支）
-- **P0 坐标系区域化**（JP-ADAPTATION #6, #7）：
+### 2026-06-26（feat/jp-localization 集群分支）
+- **VIN 电池容量映射**（JP-ADAPTATION #15）：
+  - 新增 `internal/battery/battery.go`，把原先在 charging/trip 两包**完全重复**的 `getBatteryCapacity` 合并为 `battery.CapacityByVIN`。
+  - 认知更正：VIN 前缀按生产地/车型估算，**非中国专属**（LRW=上海产，含出口日本车型），日本沿用即可；仅修正误导性注释。
+  - 顺手修复边界 bug：原 `len(vin)<4` 才读 `vin[0:3]`，改为 `<3`。
+  - 已 `go build ./...` + `go vet` 通过。
+- **时区**（JP-ADAPTATION #17）：`cmd/batch_analyze/main.go` 默认 `Asia/Tokyo`，保留 `TZ` 环境变量覆盖。已编译通过。
+- **地图服务（#8-13）暂缓**：调研发现前端用 UniApp 内置 `<map>` 组件（绑定中国地图服务），换 Google Maps 需抛弃该组件改用 Google SDK，且实现方式取决于发布平台（H5/App/小程序）。待用户确定发布平台后再做。
+- **AI 模型（#24-25）暂缓**：等用户确定 LLM 选型（Claude/GPT/其他）。
+
+- **P0 坐标系区域化**（JP-ADAPTATION #6, #7，集群分支前称 feat/coords-wgs84）：
   - `internal/geo/geocode.go`：新增 `LocalizeCoords(lat,lng)`——仅 `REGION=cn` 时做 GCJ-02 偏移，日本及其他区域返回原始 WGS-84。`WGS84ToGCJ02` 原函数保留供 cn 用。
   - 3 个调用点（`telemetry/receiver.go` ×2、`fleet/client.go` ×1）改为调 `LocalizeCoords`。
   - 修复真实隐患：旧 `outOfChina` 矩形（经度 72~137.83）会把**西日本**（九州/冲绳/四国等，经度 < 137.83）误判为中国并施加坐标偏移；区域开关彻底规避。
