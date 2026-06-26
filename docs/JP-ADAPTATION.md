@@ -61,9 +61,15 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 | 24 | AI 模型 | `tesla-server/config/config.go:143`、`.env.example:43-45` | Zhipu `glm-4-flash` / `open.bigmodel.cn` → 国际 LLM（Claude/GPT） | ☐ |
 | 25 | AI 报告输出语言 | `tesla-server/internal/ai/handler.go` | 中文 key/单位 → 日文 | ☐ |
 
-## 待用户确认的决策
+## 已确认的决策（2026-06-26）
 
-- **地图服务选型**：Google Maps / Apple MapKit / MapBox？影响 P0 的 #8–13。
-- **AI 模型选型**：是否换成 Claude？影响 #24–25。
-- **语言策略**：纯日文，还是接 vue-i18n 做日/英多语言？影响 #18–22, #25。
-- **是否保留中国版兼容**：用 env 开关区分 CN/JP，还是彻底改成日本专用（删中国代码）？
+- **地图服务 = Google Maps**。理由：日本特斯拉车机本身即用 Google 地图（特斯拉全球车机除中国外均用 Google 地图数据），符合车机生态与日本用户习惯。影响 #8–13。
+- **双区兼容 = 用 env 开关切 CN/JP**。保留中国代码路径，端点/地图/坐标/货币由配置控制。新增配置项 `REGION=jp|cn`（或等价开关），坐标偏移、地图服务、Fleet 端点据此分流。代码改动最小、同步 upstream 冲突最小。影响全局架构。
+- **语言 = 接 vue-i18n 做日/英多语言**。文案抽成语言包（`ja` / `en`），默认日文。影响 #18–22, #25。
+- **AI 模型**：仍待定（Claude / GPT / 其他国际 LLM）。影响 #24–25。
+
+## 由决策衍生的架构约定
+
+- 后端新增 region 配置（如 `REGION` 环境变量），`config.go` 据此选择 Tesla 端点、是否做 GCJ-02 偏移、默认货币/时区。
+- 前端用 vue-i18n 管理文案；地图封装一层抽象，便于 CN(腾讯)/JP(Google) 切换。
+- 同步 upstream 时，双区开关让我们的改动以「新增分支逻辑」为主，尽量不删原中国代码 → 降低 merge 冲突。
