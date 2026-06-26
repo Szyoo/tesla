@@ -13,7 +13,15 @@
 
 ## 进展日志
 
-### 2026-06-26
+### 2026-06-26（feat/region-switch 分支）
+- **P0 后端 region 开关 + Tesla 端点区域化**（JP-ADAPTATION #1-5, #14）：
+  - `config.go`：新增 `REGION` 环境变量（jp/na/eu/cn，默认 jp）与 `teslaRegions` 端点表，按区域提供 OAuth/Fleet/audience/配对页默认端点；显式 `TESLA_*_URL` 仍优先覆盖。`Config` 加 `Region` 字段，`TeslaConfig` 加 `PairingBase`。
+  - `internal/tesla/oauth.go`：虚拟钥匙配对 URL 由写死的 `tesla.cn/_ak/` 改为按区域的 `cfg.Tesla.PairingBase`。
+  - `config.go` 修复 `ensureHTTPS()`：localhost/127.0.0.1 豁免强制 https（否则 localhost 调试时 redirect_uri 会与 Tesla 门户登记值不符，OAuth 报 mismatch）。
+  - `.env.example`：文档化 REGION，回调示例改为 localhost，加端点覆盖说明。
+  - ⚠️ **未本地编译验证**：开发机未安装 Go，改动经人工审阅。需在有 Go 环境处 `go build ./...` 复验。
+
+### 2026-06-26（dev 分支）
 - 调研中国区耦合点并制定日本版适配计划：
   - 全仓扫描出所有「中国特定」代码/配置，分 P0/P1/P2 共 25 项，记入 `docs/JP-ADAPTATION.md`。
   - **纠正关键误区**：Tesla Fleet API 无日本专属域名，日本属 APAC，走北美区 `na` 端点（`auth.tesla.com` / `fleet-api.prd.na.vn.cloud.tesla.com`），**不是** `*.tesla.jp`。

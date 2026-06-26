@@ -25,11 +25,11 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 
 | # | 类别 | 文件 | 中国值 → 日本值 | 状态 |
 |---|------|------|------|------|
-| 1 | OAuth Token URL | `tesla-server/config/config.go:90` | `auth.tesla.cn/...token` → `auth.tesla.com/...token` | ☐ |
-| 2 | OAuth Auth URL | `tesla-server/config/config.go:91` | `auth.tesla.cn/...authorize` → `auth.tesla.com/...authorize` | ☐ |
-| 3 | Fleet API URL | `tesla-server/config/config.go:92` | `fleet-api...cn...tesla.cn` → `fleet-api.prd.na.vn.cloud.tesla.com` | ☐ |
-| 4 | Audience | `tesla-server/config/config.go:93` | 同上 na URL | ☐ |
-| 5 | .env 示例 + 注释 | `tesla-server/.env.example:18-23` | `(China)` 默认值 + `developer.tesla.cn` → na 端点 + `developer.tesla.com` | ☐ |
+| 1 | OAuth Token URL | `tesla-server/config/config.go` | 由 `REGION` 开关驱动（jp→`auth.tesla.com`），env 可覆盖 | ✅ |
+| 2 | OAuth Auth URL | `tesla-server/config/config.go` | 同上，区域化 | ✅ |
+| 3 | Fleet API URL | `tesla-server/config/config.go` | jp→`fleet-api.prd.na.vn.cloud.tesla.com` | ✅ |
+| 4 | Audience | `tesla-server/config/config.go` | 同 Fleet API，区域化 | ✅ |
+| 5 | .env 示例 + 注释 | `tesla-server/.env.example` | 新增 REGION 说明，回调改 localhost，端点覆盖说明 | ✅ |
 | 6 | 坐标系：停用 GCJ-02 偏移 | `tesla-server/internal/telemetry/receiver.go`、`internal/fleet/client.go` | 移除 `geo.WGS84ToGCJ02()` 调用，日本直接用 WGS-84 | ☐ |
 | 7 | 坐标转换函数 | `tesla-server/internal/geo/geocode.go:169-186` | 保留代码但不调用（或加开关），日本无需偏移 | ☐ |
 | 8 | 地图反向地理编码 | `tesla-server/internal/geo/geocode.go:51` | 腾讯 `apis.map.qq.com/.../geocoder` → Google/其他 | ☐ |
@@ -43,7 +43,7 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 
 | # | 类别 | 文件 | 中国值 → 日本值 | 状态 |
 |---|------|------|------|------|
-| 14 | 虚拟钥匙配对 URL | `tesla-server/internal/tesla/oauth.go:1253` | `tesla.cn/_ak/` → `tesla.com/_ak/` | ☐ |
+| 14 | 虚拟钥匙配对 URL | `tesla-server/internal/tesla/oauth.go:1253` | 改为 `cfg.Tesla.PairingBase`（区域化，jp→`tesla.com`） | ✅ |
 | 15 | VIN 前缀/电池容量 | `tesla-server/internal/charging/tracker.go:118-128`、`internal/trip/tracker.go` | `LRW`(中国国行) 映射 → 加入日本进口车 VIN 前缀（待查实际值，多为 5YJ/7SA/XP7 进口） | ☐ |
 | 16 | Fleet 注释/endpoints | `tesla-server/internal/fleet/client.go` | 移除「中国区不支持 closures_state」等假设，按 APAC 实测调整 | ☐ |
 | 17 | 时区 | `tesla-server/cmd/batch_analyze/main.go` | `Asia/Shanghai` → `Asia/Tokyo` | ☐ |
