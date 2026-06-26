@@ -71,9 +71,13 @@ type CertSyncConfig struct {
 }
 
 type AIConfig struct {
-	APIKey  string
-	Model   string
-	BaseURL string
+	Provider string // 云端 AI 提供方：openai-compat（默认）| anthropic
+	APIKey   string
+	Model    string
+	BaseURL  string
+	// Anthropic（AI_PROVIDER=anthropic 时使用官方 Claude API）
+	AnthropicAPIKey string
+	AnthropicModel  string
 }
 
 type ServerConfig struct {
@@ -183,9 +187,12 @@ func Load() *Config {
 			TencentKey: getEnv("TENCENT_MAP_KEY", ""),
 		},
 		AI: AIConfig{
-			APIKey:  getEnv("AI_API_KEY", ""),
-			Model:   getEnv("AI_MODEL", "glm-4-flash"),
-			BaseURL: getEnv("AI_BASE_URL", "https://open.bigmodel.cn/api/paas/v4"),
+			Provider:        strings.ToLower(getEnv("AI_PROVIDER", "openai-compat")),
+			APIKey:          getEnv("AI_API_KEY", ""),
+			Model:           getEnv("AI_MODEL", "glm-4-flash"),
+			BaseURL:         getEnv("AI_BASE_URL", "https://open.bigmodel.cn/api/paas/v4"),
+			AnthropicAPIKey: getEnv("ANTHROPIC_API_KEY", ""),
+			AnthropicModel:  getEnv("ANTHROPIC_MODEL", "claude-haiku-4-5"),
 		},
 		Telemetry: TelemetryConfig{
 			Enabled:         getEnvAsBool("TELEMETRY_ENABLED", false),

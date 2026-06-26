@@ -129,7 +129,7 @@ type TripLog struct {
 	StartCity         string     `gorm:"size:100" json:"start_city"`
 	EndCity           string     `gorm:"size:100" json:"end_city"`
 	AvgConsumption    float64    `json:"avg_consumption"`
-	ElectricityCost   *float64   `json:"electricity_cost"` // 行程电费（元，基于充电价格估算）
+	ElectricityCost   *float64   `json:"electricity_cost"` // 行程电费（円，基于充电价格估算）
 	CreatedAt         time.Time  `json:"created_at"`
 }
 
@@ -164,8 +164,8 @@ type ChargingLog struct {
 	PoiName               string     `gorm:"size:255" json:"poi_name"`
 	Latitude              float64    `json:"latitude"`
 	Longitude             float64    `json:"longitude"`
-	PricePerKwh           *float64   `json:"price_per_kwh"`  // 电价(元/kWh)
-	TotalCost             *float64   `json:"total_cost"`     // 总费用(元)
+	PricePerKwh           *float64   `json:"price_per_kwh"`  // 电价(円/kWh)
+	TotalCost             *float64   `json:"total_cost"`     // 总费用(円)
 	CreatedAt             time.Time  `json:"created_at"`
 }
 
