@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"tesla-server/config"
 	"tesla-server/internal/database"
 	"tesla-server/internal/middleware"
@@ -210,7 +211,7 @@ func RunTripAnalysis(vin string, userID uint64, refID string) {
 		return
 	}
 
-	resp, err := Chat(systemPrompt, userPrompt)
+	resp, err := Chat(localizeSystemPrompt(systemPrompt), userPrompt)
 	if err != nil {
 		log.Printf("[AI] Trip analysis failed: %v", err)
 		return
@@ -294,7 +295,7 @@ func RunChargingAnalysis(vin string, userID uint64, refID string) {
 		return
 	}
 
-	resp, err := Chat(systemPrompt, userPrompt)
+	resp, err := Chat(localizeSystemPrompt(systemPrompt), userPrompt)
 	if err != nil {
 		log.Printf("[AI] Charging analysis failed: %v", err)
 		return
@@ -368,7 +369,7 @@ func RunVehicleAnalysis(vin string, userID uint64, date string) {
 		return
 	}
 
-	resp, err := Chat(systemPrompt, userPrompt)
+	resp, err := Chat(localizeSystemPrompt(systemPrompt), userPrompt)
 	if err != nil {
 		log.Printf("[AI] Vehicle analysis failed: %v", err)
 		return
@@ -419,9 +420,30 @@ func formatAnalysis(a *models.AIAnalysis) gin.H {
 	}
 }
 
+// reportLanguageHint 按区域返回 AI 分析报告应使用的输出语言指令。
+// 中国区(cn)用中文，日本及其他区域用日文。
+func reportLanguageHint() string {
+	if config.Load().Region == "cn" {
+		return "- 分析结果使用中文，语言简洁易懂"
+	}
+	return "- 分析结果は日本語で、簡潔で分かりやすく記述してください"
+}
+
+// localizeSystemPrompt 把 system prompt 中写死的中文输出指令替换为按区域的语言指令。
+func localizeSystemPrompt(prompt string) string {
+	return strings.Replace(prompt, "- 分析结果使用中文，语言简洁易懂", reportLanguageHint(), 1)
+}
+
 func generateSummary(fullResult string) string {
-	summaryPrompt := "请用一句话（不超过50个字）概括以下AI分析结果的核心结论，只输出概括文字，不要任何前缀、标点符号以外的格式：\n\n" + fullResult
-	resp, err := Chat("你是一个精准的摘要生成器，只输出简洁的一句话概括。", summaryPrompt)
+	var sysPrompt, summaryPrompt string
+	if config.Load().Region == "cn" {
+		sysPrompt = "你是一个精准的摘要生成器，只输出简洁的一句话概括。"
+		summaryPrompt = "请用一句话（不超过50个字）概括以下AI分析结果的核心结论，只输出概括文字，不要任何前缀、标点符号以外的格式：\n\n" + fullResult
+	} else {
+		sysPrompt = "あなたは正確な要約生成器です。簡潔な一文の要約のみを出力してください。"
+		summaryPrompt = "以下のAI分析結果の核心的な結論を一文（50文字以内）で要約してください。要約文のみを出力し、前置きや余分な書式は付けないでください：\n\n" + fullResult
+	}
+	resp, err := Chat(sysPrompt, summaryPrompt)
 	if err != nil || len(resp.Choices) == 0 {
 		if len(fullResult) > 80 {
 			return fullResult[:80] + "..."
