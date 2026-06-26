@@ -79,3 +79,6 @@ tesla-app/TencentNaviDemo_Android_v7.7.0 (2)/
 tesla-app/build-plugin-base.js
 tesla-app/AndroidManifest.xml
 tesla-app/.build_cache/
+
+# 本地私有文件（密码本/备用码等敏感凭证，永不提交）
+_local/
