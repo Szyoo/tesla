@@ -462,7 +462,7 @@ type MonthlyStatsItem struct {
 	TotalEnergy     float64  `json:"total_energy"`
 	AvgConsumption  float64  `json:"avg_consumption"`
 	TotalDuration   int      `json:"total_duration"`    // 总行驶时长（秒）
-	TotalCost       *float64 `json:"total_cost"`        // 总电费（元）
+	TotalCost       *float64 `json:"total_cost"`        // 总电费（円）
 }
 
 func GetMonthlyTripList(vin string) ([]MonthlyStatsItem, error) {

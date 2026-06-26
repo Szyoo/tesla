@@ -517,8 +517,8 @@ func checkChargingLogOwner(c *gin.Context) {
 
 // updateChargingPrice 更新充电记录价格
 // 支持两种模式：
-// 1. 慢充(AC)：传入 price_per_kwh（元/kWh），后端自动计算 total_cost
-// 2. 快充(DC)：传入 total_cost（元），直接保存总金额
+// 1. 慢充(AC)：传入 price_per_kwh（円/kWh），后端自动计算 total_cost
+// 2. 快充(DC)：传入 total_cost（円），直接保存总金额
 func updateChargingPrice(c *gin.Context) {
 	logObj, exists := c.Get("chargingLog")
 	if !exists {
@@ -528,8 +528,8 @@ func updateChargingPrice(c *gin.Context) {
 	log := logObj.(models.ChargingLog)
 
 	var req struct {
-		PricePerKwh *float64 `json:"price_per_kwh"` // 慢充：电价（元/kWh）
-		TotalCost   *float64 `json:"total_cost"`   // 快充：总费用（元）
+		PricePerKwh *float64 `json:"price_per_kwh"` // 慢充：电价（円/kWh）
+		TotalCost   *float64 `json:"total_cost"`   // 快充：总费用（円）
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

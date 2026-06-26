@@ -53,7 +53,7 @@ Tesla Fleet API 只有 **3 个区域**：北美/亚太（NA/APAC）、欧洲（E
 | # | 类别 | 文件 | 中国值 → 日本值 | 状态 |
 |---|------|------|------|------|
 | 18 | 货币单位（前端） | `pages/trip/trip.vue`、`charging/month.vue` 等 | `元` / `元/kWh` → `円` / `円/kWh`（JPY） | ☐ |
-| 19 | 货币单位（后端注释/字段） | `models/tesla.go`、`charging/tracker.go`、`trip/tracker.go`、`routes/routes.go` | 注释「元」→「円」 | ☐ |
+| 19 | 货币单位（后端注释/字段） | `models/tesla.go`、`charging/tracker.go`、`trip/tracker.go`、`routes/routes.go` | 9 处注释「元」→「円」（均为注释，无逻辑改动） | ✅ |
 | 20 | App 名称/描述 | `tesla-app/manifest.json.example:2,4` | `Tesla中国区...` → 日文/英文 | ☐ |
 | 21 | 页面标题 i18n | `tesla-app/pages.json`（多处 navigationBarTitleText） | 中文 → 日文（或接入 vue-i18n，项目已装 `vue-i18n`） | ☐ |
 | 22 | 页面内中文文案 | 各 `pages/*.vue` | 中文 → 日文 | ☐ |

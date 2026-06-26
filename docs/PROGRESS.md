@@ -14,6 +14,7 @@
 ## 进展日志
 
 ### 2026-06-26（feat/jp-localization 集群分支）
+- **货币单位后端注释**（JP-ADAPTATION #19）：9 处「元」→「円」（models/tesla.go、charging/trip tracker、routes.go），均为注释/字段说明，无逻辑改动。go build 通过。
 - **VIN 电池容量映射**（JP-ADAPTATION #15）：
   - 新增 `internal/battery/battery.go`，把原先在 charging/trip 两包**完全重复**的 `getBatteryCapacity` 合并为 `battery.CapacityByVIN`。
   - 认知更正：VIN 前缀按生产地/车型估算，**非中国专属**（LRW=上海产，含出口日本车型），日本沿用即可；仅修正误导性注释。
