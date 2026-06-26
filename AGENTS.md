@@ -5,8 +5,11 @@
 
 ## 0. 这是什么仓库
 
-特斯拉中国区车联网平台，**fork 自** [798491-collab/tesla](https://github.com/798491-collab/tesla)（AGPL-3.0）。
+特斯拉车联网平台，**fork 自** [798491-collab/tesla](https://github.com/798491-collab/tesla)（AGPL-3.0）。
 本 fork 在原项目基础上做二次开发，**目标是不影响原始项目**。
+
+> **本 fork 的核心目标：把中国版适配为日本版。** 原项目为中国区特斯拉（`.cn` 端点、腾讯地图、GCJ-02 坐标、人民币、中文）。改造清单与优先级见 [docs/JP-ADAPTATION.md](docs/JP-ADAPTATION.md)。
+> 关键提醒：Tesla Fleet API **无日本专属域名**，日本属 APAC，走北美区 `na` 端点（`auth.tesla.com` / `fleet-api.prd.na.vn.cloud.tesla.com`），不要写成 `*.tesla.jp`。
 
 - 后端 `tesla-server/`：Go（Gin + GORM/MySQL + Redis），Tesla Fleet API OAuth、VCP 签名命令代理、车辆状态机、WebSocket 实时推送、遥测接收解析、行程/充电/AI 分析。
 - 前端 `tesla-app/`：UniApp + Vue3（可编译 H5 / App / 小程序），Pinia 状态管理，three.js 车模，腾讯地图。
